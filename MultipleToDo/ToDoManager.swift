@@ -12,15 +12,17 @@ import SQLite
 class ToDoManager {
   
     
-
+   
 // MARK: - Setting up the database.
     
     static let sharedInstance = ToDoManager()
     
     private init() { }
     
-    // List to hold "todo's" so tableview can display them.
+    // Nested dictionary to hold todo's, each with his key and mainToDo, so tableview can display them.
+    var MAIN = [String: [Int: String]] ()
     var stuff = [Int: String] ()
+    
     
     // Variable to index which item to delete.
     var deleteId: Int?
@@ -30,6 +32,7 @@ class ToDoManager {
     let dontforgets = Table("dontforgets")
     let id = Expression<Int>("id")
     let todo = Expression<String>("todo")
+    let mainToDo = Expression<String>("mainToDo")
 
     func setupDatabase() {
         let path = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true).first!
@@ -48,6 +51,7 @@ class ToDoManager {
             try database!.run(dontforgets.create(ifNotExists: true) { t in   // CREATE TABLE: "dontforgets"
                 t.column(id, primaryKey: .Autoincrement)                     // "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL.
                 t.column(todo, unique: true)                                 // "todo" TEXT UNIQUE NOT NULL.
+                t.column(mainToDo, unique: false)                             // "mainToDo" TEXT UNIQUE NOT NULL.
                 })
         }
         catch {
@@ -56,21 +60,32 @@ class ToDoManager {
     }
     
     /// Loops over the database, puts 'id' and 'todo' in a dictionary so we can display and access values.
-    func displayToDoList() {
+    func displayToDoList(detailItem: String) {
         
         do {
             stuff = [:]
-            for dontforget in try database!.prepare(dontforgets.select(id, todo)) {
+            MAIN = [:]
+            for dontforget in try database!.prepare(dontforgets.select(id, todo, mainToDo)) {
                 let todoKey = dontforget[id]
                 let todoValue = dontforget[todo]
-                stuff[todoKey] = todoValue
+                let mainTodoValue = dontforget[mainToDo]
+                
+                if mainTodoValue == detailItem {
+                    stuff[todoKey] = todoValue
+                    print(stuff)
+
+                    MAIN[mainTodoValue] = stuff
+                    print("MAIN = ", MAIN)
+                }
+                
             }
         }
         catch {
             print("Failed to find todo: \(error)")
         }
     }
-
+    
+    
     
     
     
@@ -83,15 +98,15 @@ class ToDoManager {
     
 // MARK: - Adding a ToDo.
     
-    func addToDo(someToDo: String) {
+    func addToDo(someToDo: String, MAINToDo: String) {
         
         do {
             if someToDo != "" {
-                let insert = dontforgets.insert(todo <- someToDo)
+                let insert = dontforgets.insert(todo <- someToDo, mainToDo <- MAINToDo)
                 try database!.run(insert)
                 
                 // Update To Do list to be displayed.
-                displayToDoList()
+                displayToDoList(MAINToDo)
                 
             }
         }
@@ -128,7 +143,7 @@ class ToDoManager {
             else {
                 print("Row not found")
             }
-            displayToDoList()
+//            displayToDoList()
         }
         catch {
             print("Delete failed: \(error)")

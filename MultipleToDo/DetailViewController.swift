@@ -18,14 +18,12 @@ class DetailViewController: UIViewController {
     
     
     
-    
-    
 
 // MARK: - Basic app life cycle and table functions.
 
     var detailItem: AnyObject? {
         didSet {
-            // Update the view.
+            //print(detailItem)
         }
     }
 
@@ -36,15 +34,21 @@ class DetailViewController: UIViewController {
             self.title = detail.description
         }
         ToDoManager.sharedInstance.setupDatabase()
-        ToDoManager.sharedInstance.displayToDoList()
+        if detailItem != nil {
+            ToDoManager.sharedInstance.displayToDoList(detailItem as! String)
+        }
         tableView.reloadData()
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(DetailViewController.updateNotificationSentLabel), name: mySpecialNotificationKey, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    
+    func updateNotificationSentLabel() {
+        //print("yaayyyyy")
+    }
     
     
     
@@ -56,12 +60,14 @@ class DetailViewController: UIViewController {
         
         let someToDo = addTextField.text!
 
-        ToDoManager.sharedInstance.addToDo(someToDo)
+        ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String)
         
         // Clear textfield after submitting.
         addTextField.text = ""
         
         tableView.reloadData()
+        
+        NSNotificationCenter.defaultCenter().postNotificationName(mySpecialNotificationKey, object: self)
         
         }
 }
@@ -83,6 +89,7 @@ extension DetailViewController: UITableViewDataSource {
         
         let cell = self.tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! CustomCell
         let values = Array(ToDoManager.sharedInstance.stuff)
+//        print("values = ", values)
         cell.toDoLabel.text = values[indexPath.row].1
         cell.selectionStyle = .None
         return cell
