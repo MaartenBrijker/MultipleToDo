@@ -59,8 +59,10 @@ class DetailViewController: UIViewController {
     @IBAction func addButton(sender: AnyObject) {
         
         let someToDo = addTextField.text!
-
+        
+        if detailItem != nil {
         ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String)
+        }
         
         // Clear textfield after submitting.
         addTextField.text = ""
@@ -89,7 +91,6 @@ extension DetailViewController: UITableViewDataSource {
         
         let cell = self.tableView.dequeueReusableCellWithIdentifier("cell", forIndexPath: indexPath) as! CustomCell
         let values = Array(ToDoManager.sharedInstance.stuff)
-//        print("values = ", values)
         cell.toDoLabel.text = values[indexPath.row].1
         cell.selectionStyle = .None
         return cell
@@ -98,7 +99,7 @@ extension DetailViewController: UITableViewDataSource {
     /// Delete rows.
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
-        ToDoManager.sharedInstance.deleteRowFromDatabase(indexPath.row)
+        ToDoManager.sharedInstance.deleteRowFromDatabase(indexPath.row, MAINToDo: detailItem as! String)
         
         tableView.reloadData()
         

@@ -72,10 +72,10 @@ class ToDoManager {
                 
                 if mainTodoValue == detailItem {
                     stuff[todoKey] = todoValue
-                    print(stuff)
+                    //print(stuff)
 
                     MAIN[mainTodoValue] = stuff
-                    print("MAIN = ", MAIN)
+                    //print("MAIN = ", MAIN)
                 }
                 
             }
@@ -124,14 +124,13 @@ class ToDoManager {
     
 // MARK: - Deleting row from the database.
     
-    func deleteRowFromDatabase(index: Int) {
+    func deleteRowFromDatabase(index: Int, MAINToDo: String) {
         
         // Get row id.
         let values = Array(ToDoManager.sharedInstance.stuff)
         deleteId = values[index].0
-        print(values)
-        print(index)
-        print(deleteId)
+        print("values = ", values)
+        print("deleteID=", deleteId)
         
         let toDelete = dontforgets.filter(id == deleteId!)
         
@@ -143,7 +142,8 @@ class ToDoManager {
             else {
                 print("Row not found")
             }
-//            displayToDoList()
+            
+            displayToDoList(MAINToDo)
         }
         catch {
             print("Delete failed: \(error)")
