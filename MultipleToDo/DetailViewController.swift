@@ -15,28 +15,22 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var addTextField: UITextField!
  
-    
-    
-    
-
 // MARK: - Basic app life cycle and table functions.
 
     var detailItem: AnyObject? {
         didSet {
-            //print(detailItem)
         }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Set title of ToDo list
         if let detail = self.detailItem {
             self.title = detail.description
         }
-        ToDoManager.sharedInstance.setupDatabase()
         if detailItem != nil {
             ToDoManager.sharedInstance.displayToDoList(detailItem as! String)
         }
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(DetailViewController.loadList(_:)),name:"load", object: nil)
         tableView.reloadData()
     }
 
@@ -44,38 +38,28 @@ class DetailViewController: UIViewController {
         super.didReceiveMemoryWarning()
     }
     
-
-    
-    
+    // move me to todomanager later please
+    func loadList(notification: NSNotification){
+        self.title = ""
+        tableView.reloadData()
+    }
 
 // MARK: - Adding to and setting up the database.
     
     // INSERT INTO "dontforgets" ("todo") VALUES ('buy groceries').
     @IBAction func addButton(sender: AnyObject) {
-        
         let someToDo = addTextField.text!
-        
-        print("m a d e i t")
-
         let checkie = false
 
         if detailItem != nil {
-        ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String, checkmark: checkie)
+            ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String, checkmark: checkie)
         }
         
-        // Clear textfield after submitting.
         addTextField.text = ""
-        
         tableView.reloadData()
-        
-        NSNotificationCenter.defaultCenter().postNotificationName(mySpecialNotificationKey, object: self)
         
         }
 }
-
-
-
-
 
 // MARK: - the UITableview.
 
@@ -98,7 +82,7 @@ extension DetailViewController: UITableViewDataSource {
     /// Delete rows.
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         
-        ToDoManager.sharedInstance.deleteRowFromDatabase(indexPath.row, MAINToDo: detailItem as! String)
+        ToDoManager.sharedInstance.deleteToDo(indexPath.row, MAINToDo: detailItem as! String)
         
         tableView.reloadData()
         
@@ -106,9 +90,7 @@ extension DetailViewController: UITableViewDataSource {
     
     // Checkmark rows
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        
         let cell = tableView.cellForRowAtIndexPath(indexPath)
-       
         if cell!.accessoryType == .Checkmark {
             cell!.accessoryType = .None
         } else {
@@ -116,7 +98,3 @@ extension DetailViewController: UITableViewDataSource {
         }
     }
 }
-
-
-
-
