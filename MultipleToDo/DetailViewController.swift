@@ -38,18 +38,13 @@ class DetailViewController: UIViewController {
             ToDoManager.sharedInstance.displayToDoList(detailItem as! String)
         }
         tableView.reloadData()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(DetailViewController.updateNotificationSentLabel), name: mySpecialNotificationKey, object: nil)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
     
-    func updateNotificationSentLabel() {
-        //print("yaayyyyy")
-    }
-    
+
     
     
 
@@ -60,8 +55,12 @@ class DetailViewController: UIViewController {
         
         let someToDo = addTextField.text!
         
+        print("m a d e i t")
+
+        let checkie = false
+
         if detailItem != nil {
-        ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String)
+        ToDoManager.sharedInstance.addToDo(someToDo, MAINToDo: detailItem as! String, checkmark: checkie)
         }
         
         // Clear textfield after submitting.
@@ -104,8 +103,19 @@ extension DetailViewController: UITableViewDataSource {
         tableView.reloadData()
         
     }
+    
+    // Checkmark rows
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let cell = tableView.cellForRowAtIndexPath(indexPath)
+       
+        if cell!.accessoryType == .Checkmark {
+            cell!.accessoryType = .None
+        } else {
+            cell!.accessoryType = .Checkmark
+        }
+    }
 }
-
 
 
 

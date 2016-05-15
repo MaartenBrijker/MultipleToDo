@@ -26,7 +26,7 @@ class MasterViewController: UITableViewController {
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
 
-        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: #selector(MasterViewController.insertNewObject(_:)))
+        let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: #selector(MasterViewController.showAlert(_:)))
         self.navigationItem.rightBarButtonItem = addButton
         if let split = self.splitViewController {
             let controllers = split.viewControllers
@@ -34,9 +34,6 @@ class MasterViewController: UITableViewController {
         }
         
     }
-    
-    
-    
     
     func updateNotificationSentLabel() {
         print("yaayyyyy")
@@ -54,20 +51,46 @@ class MasterViewController: UITableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func showAlert(sender: AnyObject) {
+        
+        let alert = UIAlertController(title: "+ 🎌 +", message: "enter a new todo", preferredStyle: UIAlertControllerStyle.Alert)
+        let loginAction = UIAlertAction(title: "Add", style: UIAlertActionStyle.Default) { (_) in
+            let nameTextField = alert.textFields![0] as UITextField
+            self.insertNewObject(nameTextField.text!)
+        }
+        
+        alert.addAction(loginAction)
+        alert.addTextFieldWithConfigurationHandler({(textField: UITextField!) in
+            textField.placeholder = "Enter text:"
+        })
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
+    
+    func insertNewObject(name: String) {
 
-    
-    
-    
+        print("super!   ", name)
 
+        
+        if name != "" {
+            objects.insert(name, atIndex: objects.count)
+            print(objects)
+            let indexPath = NSIndexPath(forRow: objects.count - 1, inSection: 0)
+            self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+        }
+    }
     
-    
-    func insertNewObject(sender: AnyObject) {
-        print(objects.count)
-        objects.insert("blblq", atIndex: objects.count)
-        let indexPath = NSIndexPath(forRow: 0, inSection: 0)
-        self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+    func login(input: String) {
+        print(input)
     }
 
+    
+    
+    
+    
+    
+    
     // MARK: - Segues
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -94,8 +117,6 @@ class MasterViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath)
-
- //       let object = objects[indexPath.row] as! NSDate
         cell.textLabel!.text = objects[indexPath.row]
         return cell
     }
@@ -107,7 +128,17 @@ class MasterViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
+            
+            print(indexPath.row)
+            
+            let mainToDoName = objects[indexPath.row]
+            
+
             objects.removeAtIndex(indexPath.row)
+
+            
+            ToDoManager.sharedInstance.deleteMainList(mainToDoName)
+            
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
         } else if editingStyle == .Insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.
