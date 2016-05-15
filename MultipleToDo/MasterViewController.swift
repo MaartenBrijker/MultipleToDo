@@ -14,12 +14,13 @@ class MasterViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
         
+        // Set up the database and display Main todo's.
         ToDoManager.sharedInstance.setupDatabase()
-        
         ToDoManager.sharedInstance.displayMAIN()
+        
+        self.title = "main 🎌 todo"
         
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: #selector(MasterViewController.showAlert(_:)))
         self.navigationItem.rightBarButtonItem = addButton
@@ -27,7 +28,6 @@ class MasterViewController: UITableViewController {
             let controllers = split.viewControllers
             self.detailViewController = (controllers[controllers.count-1] as! UINavigationController).topViewController as? DetailViewController
         }
-        
     }
     
     override func viewWillAppear(animated: Bool) {
@@ -37,15 +37,17 @@ class MasterViewController: UITableViewController {
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
+// MARK: - Adding a Main Todo.
+    
+    /// Showing the alert screen, providing user to typ a new todo.
     func showAlert(sender: AnyObject) {
         
         let alert = UIAlertController(title: "+ 🎌 +", message: "enter a new todo", preferredStyle: UIAlertControllerStyle.Alert)
         let loginAction = UIAlertAction(title: "Add", style: UIAlertActionStyle.Default) { (_) in
             let nameTextField = alert.textFields![0] as UITextField
-            self.insertNewObject(nameTextField.text!)
+            self.insertNewMAIN(nameTextField.text!)
         }
         
         alert.addAction(loginAction)
@@ -55,8 +57,8 @@ class MasterViewController: UITableViewController {
         self.presentViewController(alert, animated: true, completion: nil)
     }
     
-    
-    func insertNewObject(name: String) {
+    /// Inserting this new todo in MAINS table
+    func insertNewMAIN(name: String) {
         
         if name != "" {
             ToDoManager.sharedInstance.addMainToDo(name)
@@ -65,7 +67,7 @@ class MasterViewController: UITableViewController {
         }
     }
     
-    // MARK: - Segues
+// MARK: - Segues
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "showDetail" {
@@ -79,7 +81,7 @@ class MasterViewController: UITableViewController {
         }
     }
 
-    // MARK: - Table View
+// MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
         return 1
@@ -99,6 +101,8 @@ class MasterViewController: UITableViewController {
         return true
     }
 
+// MARK: - Deleting from Main todo's when swiped left.
+    
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
             let mainToDoName = ToDoManager.sharedInstance.MAINLISTS[indexPath.row]
@@ -110,4 +114,3 @@ class MasterViewController: UITableViewController {
         }
     }
 }
-

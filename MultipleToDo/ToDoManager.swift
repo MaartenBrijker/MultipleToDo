@@ -23,6 +23,7 @@ class ToDoManager {
     // Variable to index which item to delete.
     var deleteId: Int?
   
+    // List to hold Main ToDo's.
     var MAINLISTS = [String]()
   
     // Initiating the SQLite Database.
@@ -31,7 +32,7 @@ class ToDoManager {
     let id = Expression<Int>("id")
     let todo = Expression<String>("todo")
     let mainToDo = Expression<String>("mainToDo")
-//    let completed = Expression<Bool>("completed")
+    //let completed = Expression<Bool>("completed")
     
     let MAINS = Table("MAINS")
     let mastertodo = Expression<String>("mastertodo")
@@ -55,7 +56,7 @@ class ToDoManager {
                 t.column(id, primaryKey: .Autoincrement)                     // "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL.
                 t.column(todo, unique: true)                                 // "todo" TEXT UNIQUE NOT NULL.
                 t.column(mainToDo, unique: false)                            // "mainToDo" TEXT NUNIQUE.
-//                t.column(completed)                                          // "completed" BOOL NUNIQUE.
+                //t.column(completed, defaultValue: false)                                          // "completed" BOOL.
                 })
         }
         catch {
@@ -65,15 +66,13 @@ class ToDoManager {
     
     /// Loops over the database, puts 'id' and 'todo' in a dictionary so we can display and access values.
     func displayToDoList(detailItem: String) {
-        
         do {
             stuff = [:]
-
             for dontforget in try database!.prepare(dontforgets.select(id, todo, mainToDo)) {
                 let todoKey = dontforget[id]
                 let todoValue = dontforget[todo]
                 let mainTodoValue = dontforget[mainToDo]
-//                let completedValue = dontforget[completed]
+                //let completedValue = dontforget[completed]
                 
                 if mainTodoValue == detailItem {
                     stuff[todoKey] = todoValue
@@ -96,7 +95,7 @@ class ToDoManager {
         }
     }
 
-    
+    /// Puts all Main Todo's in a list.
     func displayMAIN() {
         do {
             MAINLISTS = []
@@ -112,6 +111,7 @@ class ToDoManager {
     
 // MARK: - Adding a ToDo.
     
+    /// Adds a ToDo to the database 'dontforgets'.
     func addToDo(someToDo: String, MAINToDo: String, checkmark: Bool) {
         do {
             if someToDo != "" {
@@ -127,6 +127,7 @@ class ToDoManager {
         }
     }
     
+    /// Adds a Main ToDo to the database 'MAINS'.
     func addMainToDo(MAINToDo: String) {
         do {
             if MAINToDo != "" {
@@ -144,6 +145,7 @@ class ToDoManager {
 
 // MARK: - Deleting row from the database.
     
+    /// Deletes a ToDo.
     func deleteToDo(index: Int, MAINToDo: String) {
         
         // Get row id.
@@ -165,6 +167,7 @@ class ToDoManager {
         }
     }
     
+    /// Deletes a Main ToDo from the table 'MAINS' plus al its children ToDo's from the table 'dontforgets'.
     func deleteMainList(mainToDoName: String) {
         
         // First delete all todo's in that specific list.
